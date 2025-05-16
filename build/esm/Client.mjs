@@ -102,7 +102,7 @@ class Client {
     }
     async consumeSeatReservation(response, rootSchema, reuseRoomInstance // used in devMode
     ) {
-        const room = this.createRoom(response.room.name, rootSchema);
+        const room = this.createRoom(response.room.name, rootSchema, this.settings.agent);
         room.roomId = response.room.roomId;
         room.sessionId = response.sessionId;
         const options = { sessionId: room.sessionId };
@@ -161,8 +161,8 @@ class Client {
         }
         return await this.consumeSeatReservation(response, rootSchema, reuseRoomInstance);
     }
-    createRoom(roomName, rootSchema) {
-        return new Room(roomName, rootSchema);
+    createRoom(roomName, rootSchema, agent) {
+        return new Room(roomName, rootSchema, agent);
     }
     buildEndpoint(room, options = {}, protocol = "ws") {
         const params = [];

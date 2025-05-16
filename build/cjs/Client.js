@@ -112,7 +112,7 @@ class Client {
     consumeSeatReservation(response, rootSchema, reuseRoomInstance // used in devMode
     ) {
         return tslib.__awaiter(this, void 0, void 0, function* () {
-            const room = this.createRoom(response.room.name, rootSchema);
+            const room = this.createRoom(response.room.name, rootSchema, this.settings.agent);
             room.roomId = response.room.roomId;
             room.sessionId = response.sessionId;
             const options = { sessionId: room.sessionId };
@@ -174,8 +174,8 @@ class Client {
             return yield this.consumeSeatReservation(response, rootSchema, reuseRoomInstance);
         });
     }
-    createRoom(roomName, rootSchema) {
-        return new Room.Room(roomName, rootSchema);
+    createRoom(roomName, rootSchema, agent) {
+        return new Room.Room(roomName, rootSchema, agent);
     }
     buildEndpoint(room, options = {}, protocol = "ws") {
         const params = [];

@@ -5,8 +5,9 @@ var NodeWebSocket = require('ws');
 
 const WebSocket = globalThis.WebSocket || NodeWebSocket;
 class WebSocketTransport {
-    constructor(events) {
+    constructor(events, agent) {
         this.events = events;
+        this.agent = agent;
     }
     send(data) {
         this.ws.send(data);
@@ -21,7 +22,7 @@ class WebSocketTransport {
     connect(url, headers) {
         try {
             // Node or Bun environments (supports custom headers)
-            this.ws = new WebSocket(url, { headers, protocols: this.protocols });
+            this.ws = new WebSocket(url, { agent: this.agent, headers, protocols: this.protocols });
         }
         catch (e) {
             // browser environment (custom headers not supported)

@@ -5293,8 +5293,9 @@
 
     const WebSocket = globalThis.WebSocket || NodeWebSocket;
     class WebSocketTransport {
-        constructor(events) {
+        constructor(events, agent) {
             this.events = events;
+            this.agent = agent;
         }
         send(data) {
             this.ws.send(data);
@@ -5309,7 +5310,7 @@
         connect(url, headers) {
             try {
                 // Node or Bun environments (supports custom headers)
-                this.ws = new WebSocket(url, { headers, protocols: this.protocols });
+                this.ws = new WebSocket(url, { agent: this.agent, headers, protocols: this.protocols });
             }
             catch (e) {
                 // browser environment (custom headers not supported)
@@ -5330,14 +5331,15 @@
     }
 
     class Connection {
-        constructor(protocol) {
+        constructor(protocol, agent) {
             this.events = {};
+            this.agent = agent;
             switch (protocol) {
                 case "h3":
                     this.transport = new H3TransportTransport(this.events);
                     break;
                 default:
-                    this.transport = new WebSocketTransport(this.events);
+                    this.transport = new WebSocketTransport(this.events, this.agent);
                     break;
             }
         }
@@ -7692,7 +7694,7 @@
     const RESERVE_START_SPACE = 2048;
 
     class Room {
-        constructor(name, rootSchema) {
+        constructor(name, rootSchema, agent) {
             // Public signals
             this.onStateChange = createSignal();
             this.onError = createSignal();
@@ -7702,6 +7704,7 @@
             this.onMessageHandlers = createNanoEvents();
             this.roomId = null;
             this.name = name;
+            this.agent = agent;
             this.packr = new Packr();
             // msgpackr workaround: force buffer to be created.
             this.packr.encode(undefined);
@@ -7715,7 +7718,7 @@
         }
         connect(endpoint, devModeCloseCallback, room = this, // when reconnecting on devMode, re-use previous room intance for handling events.
         options, headers) {
-            const connection = new Connection(options.protocol);
+            const connection = new Connection(options.protocol, this.agent);
             room.connection = connection;
             connection.events.onmessage = Room.prototype.onMessageCallback.bind(room);
             connection.events.onclose = function (e) {
@@ -8424,7 +8427,7 @@
         consumeSeatReservation(response, rootSchema, reuseRoomInstance // used in devMode
         ) {
             return __awaiter(this, void 0, void 0, function* () {
-                const room = this.createRoom(response.room.name, rootSchema);
+                const room = this.createRoom(response.room.name, rootSchema, this.settings.agent);
                 room.roomId = response.room.roomId;
                 room.sessionId = response.sessionId;
                 const options = { sessionId: room.sessionId };
@@ -8486,8 +8489,8 @@
                 return yield this.consumeSeatReservation(response, rootSchema, reuseRoomInstance);
             });
         }
-        createRoom(roomName, rootSchema) {
-            return new Room(roomName, rootSchema);
+        createRoom(roomName, rootSchema, agent) {
+            return new Room(roomName, rootSchema, agent);
         }
         buildEndpoint(room, options = {}, protocol = "ws") {
             const params = [];

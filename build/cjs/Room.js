@@ -12,7 +12,7 @@ var ServerError = require('./errors/ServerError.js');
 var msgpackr = require('@colyseus/msgpackr');
 
 class Room {
-    constructor(name, rootSchema) {
+    constructor(name, rootSchema, agent) {
         // Public signals
         this.onStateChange = signal.createSignal();
         this.onError = signal.createSignal();
@@ -22,6 +22,7 @@ class Room {
         this.onMessageHandlers = nanoevents.createNanoEvents();
         this.roomId = null;
         this.name = name;
+        this.agent = agent;
         this.packr = new msgpackr.Packr();
         // msgpackr workaround: force buffer to be created.
         this.packr.encode(undefined);
@@ -35,7 +36,7 @@ class Room {
     }
     connect(endpoint, devModeCloseCallback, room = this, // when reconnecting on devMode, re-use previous room intance for handling events.
     options, headers) {
-        const connection = new Connection.Connection(options.protocol);
+        const connection = new Connection.Connection(options.protocol, this.agent);
         room.connection = connection;
         connection.events.onmessage = Room.prototype.onMessageCallback.bind(room);
         connection.events.onclose = function (e) {

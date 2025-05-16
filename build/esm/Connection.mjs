@@ -5,13 +5,15 @@ import { WebSocketTransport } from './transport/WebSocketTransport.mjs';
 class Connection {
     transport;
     events = {};
-    constructor(protocol) {
+    agent;
+    constructor(protocol, agent) {
+        this.agent = agent;
         switch (protocol) {
             case "h3":
                 this.transport = new H3TransportTransport(this.events);
                 break;
             default:
-                this.transport = new WebSocketTransport(this.events);
+                this.transport = new WebSocketTransport(this.events, this.agent);
                 break;
         }
     }

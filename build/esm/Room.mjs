@@ -27,9 +27,11 @@ class Room {
     rootSchema;
     onMessageHandlers = createNanoEvents();
     packr;
-    constructor(name, rootSchema) {
+    agent;
+    constructor(name, rootSchema, agent) {
         this.roomId = null;
         this.name = name;
+        this.agent = agent;
         this.packr = new Packr();
         // msgpackr workaround: force buffer to be created.
         this.packr.encode(undefined);
@@ -43,7 +45,7 @@ class Room {
     }
     connect(endpoint, devModeCloseCallback, room = this, // when reconnecting on devMode, re-use previous room intance for handling events.
     options, headers) {
-        const connection = new Connection(options.protocol);
+        const connection = new Connection(options.protocol, this.agent);
         room.connection = connection;
         connection.events.onmessage = Room.prototype.onMessageCallback.bind(room);
         connection.events.onclose = function (e) {

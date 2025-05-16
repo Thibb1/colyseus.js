@@ -5,14 +5,15 @@ var H3Transport = require('./transport/H3Transport.js');
 var WebSocketTransport = require('./transport/WebSocketTransport.js');
 
 class Connection {
-    constructor(protocol) {
+    constructor(protocol, agent) {
         this.events = {};
+        this.agent = agent;
         switch (protocol) {
             case "h3":
                 this.transport = new H3Transport.H3TransportTransport(this.events);
                 break;
             default:
-                this.transport = new WebSocketTransport.WebSocketTransport(this.events);
+                this.transport = new WebSocketTransport.WebSocketTransport(this.events, this.agent);
                 break;
         }
     }
