@@ -3,7 +3,7 @@
 
 var NodeWebSocket = require('ws');
 
-const WebSocket = globalThis.WebSocket || NodeWebSocket;
+const WebSocket = NodeWebSocket;
 class WebSocketTransport {
     constructor(events, agent) {
         this.events = events;

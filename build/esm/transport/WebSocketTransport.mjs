@@ -1,7 +1,7 @@
 // colyseus.js@0.16.16
 import NodeWebSocket from 'ws';
 
-const WebSocket = globalThis.WebSocket || NodeWebSocket;
+const WebSocket = NodeWebSocket;
 class WebSocketTransport {
     events;
     agent;

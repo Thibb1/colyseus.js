@@ -5291,7 +5291,7 @@
     var browserExports = requireBrowser();
     var NodeWebSocket = /*@__PURE__*/getDefaultExportFromCjs(browserExports);
 
-    const WebSocket = globalThis.WebSocket || NodeWebSocket;
+    const WebSocket = NodeWebSocket;
     class WebSocketTransport {
         constructor(events, agent) {
             this.events = events;
